@@ -27,6 +27,7 @@
 #include <rdma/ib_verbs.h>
 #include <rdma/rdma_cm.h>
 #include <linux/seq_file.h>
+#include <linux/proc_fs.h>
 
 #include "smbdirect.h"
 
