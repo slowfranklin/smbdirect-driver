@@ -699,7 +699,8 @@ setup_listen(struct smbd_device *smbd_dev)
 	struct rdma_cm_id *smbd_lid = NULL;
 	struct sockaddr_in sa;
 
-	smbd_lid = rdma_create_id(smbd_cma_handler,
+	smbd_lid = rdma_create_id(&init_net,
+				  smbd_cma_handler,
 				  smbd_dev,
 				  RDMA_PS_TCP,
 				  IB_QPT_RC);
