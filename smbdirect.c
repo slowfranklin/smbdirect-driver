@@ -449,6 +449,7 @@ handle_connect_request(struct rdma_cm_id *cm_id,
 	struct ib_qp_init_attr conn_attr;
 	struct rdma_conn_param cparam;
 	struct ib_recv_wr *bad_wr;
+	struct ib_cq_init_attr cq_attr = {};
 
 	printk(KERN_INFO "Handling connection request ...\n");
 	
@@ -472,12 +473,12 @@ handle_connect_request(struct rdma_cm_id *cm_id,
 		goto clean_conn;
 	}
 
+	cq_attr.cqe = MAX_CQ_DEPTH * 2;
 	conn->cq = ib_create_cq(cm_id->device, 
 				handle_completion_event,
 				NULL,
 				conn,
-				MAX_CQ_DEPTH * 2,
-				0);
+				&cq_attr);
 	if (IS_ERR(conn->cq)) {
 		res = PTR_ERR(conn->cq);
 		printk(KERN_ERR "Unable to create completion queue: %d\n",
