@@ -1,6 +1,8 @@
 # Build the smbdirect module
 #
-obj-m = smbdirect.o
+obj-m = smbd.o
+smbd-objs += smbdirect.o smbd_rdma.o
+
 KVERSION = $(shell uname -r)
 
 all:

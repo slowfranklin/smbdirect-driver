@@ -19,6 +19,20 @@
 #include <linux/cdev.h>
 #include <rdma/rdma_cm.h>
 
+/*
+ * The port number we listen on
+ */
+#define SMB_DIRECT_PORT 5445
+
+/* Max CQ depth per queue ... */
+#define MAX_CQ_DEPTH 128
+
+#define SMBD_IOC_VAL 's'
+#define SMBD_LISTEN         _IOR(SMBD_IOC_VAL, 1, void *)
+#define SMBD_SET_PARAMS     _IOR(SMBD_IOC_VAL, 2, void *)
+#define SMBD_GET_MEM_PARAMS _IOW(SMBD_IOC_VAL, 3, void *)
+#define SMBD_SET_SESSION_ID _IOW(SMBD_IOC_VAL, 4, void *)
+
 enum smbd_states {
 	SMBD_NEGOTIATE = 0, /* This is the PASSIVE state in the spec */
 	SMBD_TRANSFER,      /* This is the ESTABLISHED state in the spec */
@@ -61,24 +75,34 @@ struct smbd_params {
 };
 
 struct smbd_device {
-	int initialized;
+	bool initialized;
+	dev_t smbdirect_dev_no;
+	struct class *kio_class;
+	struct device *kio_device;
+
+	int connection_count;
 	struct smbd_params params;
 	struct mutex connection_list_mutex; /* Controls access to the list */
 	/*
 	 * List of connections or pending connections
 	 */
+	wait_queue_head_t conn_queue;
 	struct list_head connection_list;
 	struct cdev cdev;
 	/*
 	 * RDMA Related stuff, including our listen port.
 	 */
 	struct rdma_cm_id *cm_lid;
+
+	struct workqueue_struct *smbd_wq;
 };
 
 /*
  * Defines connections or pending connections 
  */
 struct connection_struct {
+	struct smbd_device *smbd_device;
+
 	struct list_head connect_ent;
 	wait_queue_head_t wait_queue;
 	enum smbd_states state;
@@ -110,9 +134,8 @@ struct connection_struct {
 	char gap[32];
 	char send_buf[32];	   /* The SMB Direct Neg response  */
 	char gap1[32];
-	/*
-	 * The device we are related to ...
-	 */
-	struct smbd_device *dev;
 };
+
+int smbd_listen(struct smbd_device *smbd_dev);
+int smbd_teardown_listen_and_connections(struct smbd_device *smbd_dev);
 
