@@ -109,6 +109,7 @@ struct connection_struct {
 	unsigned long long session_id;
 	struct work_struct cq_work;
 	struct work_struct disconnect_work;
+
 	/*
 	 * RDMA stuff
 	 */
@@ -116,15 +117,18 @@ struct connection_struct {
 	struct ib_cq *cq;
 	struct ib_pd *pd;
 	struct ib_qp *qp;
+
 	/*
 	 * Structures for sending and receiving RDMA stuff
 	 */
 	struct ib_recv_wr recv_wr; /* Initial receive ... */
-	struct ib_sge recv_sgl;    /* Single SGE for now */
+	struct ib_sge recv_sge;    /* Single SGE for now */
 	struct ib_mr *recv_mr;
+
 	struct ib_send_wr send_wr;
-	struct ib_sge send_sgl;
+	struct ib_sge send_sge;
 	struct ib_mr *send_mr;
+
 	/*
 	 * Buffers ...
 	 */
