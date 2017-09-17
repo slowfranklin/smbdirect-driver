@@ -147,7 +147,7 @@ IOCTLS
 
 The following ioctls are needed:
 
-1. SET_SMBD_PARAMETERS
+1. SMBD_LISTEN
 
 This ioctl sets the set of parameters that SMB Direct operates under:
 
@@ -158,7 +158,7 @@ This ioctl sets the set of parameters that SMB Direct operates under:
   - MaxReceiveSize
   - KeepaliveInterval
 
-2. GET_SMBD_CONN_FD
+2. SMBD_ACCEPT
 
 This fetches a new connection fd.
 
